@@ -110,7 +110,7 @@ describe('Parser Tests', () => {
       expect(() => parse("3 +")).toThrow();
       expect(() => parse("+ 3")).toThrow();
       expect(() => parse("3 + + 4")).toThrow();
-      expect(() => parse("3.5")).toThrow(); // Only integers are supported
+      // expect(() => parse("3.5")).toThrow(); // Only integers are supported --> Not anymore
     });
 
     test('should handle incomplete expressions', () => {
@@ -134,5 +134,27 @@ describe('Parser Tests', () => {
       expect(parse("99 ** 2 // This is also a comment")).toBe(9801);
       expect(parse("7 - 5 // - 1")).toBe(2);
     });
+  });
+
+  describe('Float test', () => {
+    test('should handle expressions with floats', () => { 
+      expect(parse("2.3")).toBe(2.3);
+      expect(parse("1.3 + 1.7")).toBe(3.0);
+      expect(parse("2.3 - 5.")).toBe(-2.7);
+      expect(parse("1.3 * 0.5")).toBe(0.65);
+      expect(parse("5 / 2.5")).toBe(2);
+      expect(parse("0.5 ** 2")).toBe(0.25);
+    }); 
+    
+    test('should handle expressions with floats in scientific notation', () => { 
+      expect(parse("2.3e-1")).toBe(0.23);
+      expect(parse("2.3E1")).toBe(23);
+      expect(parse("9.999E3 + 1")).toBe(10_000);
+      expect(parse("1.0E5 - 1")).toBe(99_999);
+      expect(parse("1.0E5 * 5.0e-1")).toBe(50_000);
+      expect(parse("2.3E10 / 2.3e5")).toBe(100_000);
+      expect(parse("1.0E2 ** 3")).toBe(1_000_000);
+    });
+
   });
 });
