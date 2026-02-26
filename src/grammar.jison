@@ -33,11 +33,11 @@ term
 %%
 
 function operate(op, left, right) {
-    switch (op) {
-        case '+': return left + right;
-        case '-': return left - right;
-        case '*': return left * right;
-        case '/': return left / right;
-        case '**': return Math.pow(left, right);
-    }
+  switch (op) {
+    case '+': return left + right;
+    case '-': return left - right;
+    case '*': return left * right;
+    case '/': return left / right;
+    case '**': return Math.pow(left, right);
+  }
 }
