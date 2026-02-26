@@ -128,4 +128,11 @@ describe('Parser Tests', () => {
     });
   });
 
+  describe('Comment tests', () => {
+    test('should handle expressions with oneline comments', () =>{
+      expect(parse("1 - 2 // This is a comment")).toBe(-1);
+      expect(parse("99 ** 2 // This is also a comment")).toBe(9801);
+      expect(parse("7 - 5 // - 1")).toBe(2);
+    });
+  });
 });
