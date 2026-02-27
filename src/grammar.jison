@@ -5,7 +5,7 @@ float {integer}[.]{integer}?
 exponent [Ee][+-]?{integer}
 %%
 \s+                                 { /* skip whitespace */;        }
-[/][*].*[*][/]                      { /* skip multiline comments*/; } 
+[/][*](.*\n?)*[*][/]                { /* skip multiline comments*/; } 
 [/][/].*                            { /* skip oneline comments*/;   } 
 {float}{exponent}?                  { return 'NUMBER';              }
 {integer}                           { return 'NUMBER';              }
