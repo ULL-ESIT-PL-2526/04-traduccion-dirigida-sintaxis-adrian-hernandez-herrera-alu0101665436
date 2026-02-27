@@ -1,15 +1,18 @@
 /* Lexer */
 %lex
+integer \d+
+float {integer}[.]{integer}?
+exponent [Ee][+-]?{integer}
 %%
-\s+                               { /* skip whitespace */;      }
-\/\/.*                            { /* skip oneline comments*/; }  
-[0-9]+\.[0-9]+[Ee]\-?[0-9]+       { return 'NUMBER';            } // Float in scientific notation
-[0-9]+\.[0-9]*                    { return 'NUMBER';            } // Float 
-[0-9]+                            { return 'NUMBER';            }
-"**"                              { return 'OP';                }
-[-+*/]                            { return 'OP';                }
-<<EOF>>                           { return 'EOF';               }
-.                                 { return 'INVALID';           }
+\s+                                 { /* skip whitespace */;        }
+[/][*].*[*][/]                      { /* skip multiline comments*/; } 
+[/][/].*                            { /* skip oneline comments*/;   } 
+{float}{exponent}?                  { return 'NUMBER';              }
+{integer}                           { return 'NUMBER';              }
+"**"                                { return 'OP';                  }
+[-+*/]                              { return 'OP';                  }
+<<EOF>>                             { return 'EOF';                 }
+.                                   { return 'INVALID';             }
 /lex
 
 /* Parser */

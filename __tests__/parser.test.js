@@ -134,6 +134,9 @@ describe('Parser Tests', () => {
       expect(parse("99 ** 2 // This is also a comment")).toBe(9801);
       expect(parse("7 - 5 // - 1")).toBe(2);
     });
+   test('should handle expressions with multiline comments', () =>{
+      // expect(parse("1 - 2 /*\n This is \na comment\n */ + 1")).toBe(0);
+    });
   });
 
   describe('Float test', () => {
@@ -155,6 +158,5 @@ describe('Parser Tests', () => {
       expect(parse("2.3E10 / 2.3e5")).toBe(100_000);
       expect(parse("1.0E2 ** 3")).toBe(1_000_000);
     });
-
   });
 });
