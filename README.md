@@ -1,4 +1,4 @@
-# Informe Práctico #4 - Traducción dirigida por la sintaxis
+# Informe Práctico #4/5 - Traducción dirigida por la sintaxis
 **Asignatura:** *Procesadores de Lenguajes* de [La Escuela Superior de Ingeniería y Tecnología](https://www.ull.es/centros/escuela-superior-de-ingenieria-y-tecnologia/) del **Grado en Ingeniería Informática.**
 **Autor:** Adrián Hernández Herrera.
 **Fecha:** 26/02/2026
@@ -177,6 +177,129 @@ Estas pruebas permiten comprobar:
 - La interpretación adecuada de notación científica.
 
 - Ignorar correctamente comentarios.
+
+## Modificación del día 5. Análisis de las Expresiones
+
+#### Expresión: 4.0 - 2.0 * 3.0 
+##### Derivación (por la izquierda)
+1. L ⇒ E eof
+2. ⇒ E op T eof
+3. ⇒ E op T op T eof
+4. ⇒ T op T op T eof
+5. ⇒ number(4.0) op T op T eof
+6. ⇒ number(4.0) - T op T eof
+7. ⇒ number(4.0) - number(2.0) op T eof
+8. ⇒ number(4.0) - number(2.0) * T eof
+9. ⇒ number(4.0) - number(2.0) * number(3.0) eof
+
+##### Árbol de Análisis Sintáctico (Parse Tree)
+Fragmento de código
+```mermaid
+graph TD
+    L["L"] --> E1["E"]
+    L --> EOF["eof"]
+    E1 --> E2["E"]
+    E1 --> OP1["op (*)"]
+    E1 --> T1["T"]
+    E2 --> E3["E"]
+    E2 --> OP2["op (-)"]
+    E2 --> T2["T"]
+    E3 --> T3["T"]
+    T3 --> NUM1["number (4.0)"]
+    T2 --> NUM2["number (2.0)"]
+    T1 --> NUM3["number (3.0)"]
+```
+##### Orden de Evaluación de las Acciones Semánticas
+La evaluación sigue un recorrido ascendente (post-orden) en el árbol:
+
+1. `T.value = convert(4.0)`
+2. ``E.value = T.value`` (El valor propagado a E es 4.0)
+2. ``T.value = convert(2.0)``
+3. ``E.value = operate('-', 4.0, 2.0)`` (El valor propagado a E es 2.0)
+4. ``T.value = convert(3.0)``
+5. ``E.value = operate('*', 2.0, 3.0)`` (El valor propagado a E es 6.0)
+6. ``L.value = E.value`` (El resultado final es 6.0)
+
+#### Expresión: 2 ** 3 ** 2
+##### Derivación (por la izquierda)
+1. L ⇒ E eof
+2. ⇒ E op T eof
+3. ⇒ E op T op T eof
+4. ⇒ T op T op T eof
+5. ⇒ number(2) op T op T eof
+6. ⇒ number(2) ** T op T eof
+7. ⇒ number(2) ** number(3) op T eof
+8. ⇒ number(2) ** number(3) ** T eof
+9. ⇒ number(2) ** number(3) ** number(2) eof
+
+##### Árbol de Análisis Sintáctico (Parse Tree)
+```mermaid
+graph TD
+    L["L"] --> E1["E"]
+    L --> EOF["eof"]
+    E1 --> E2["E"]
+    E1 --> OP1["op (**)"]
+    E1 --> T1["T"]
+    E2 --> E3["E"]
+    E2 --> OP2["op (**)"]
+    E2 --> T2["T"]
+    E3 --> T3["T"]
+    T3 --> NUM1["number (2)"]
+    T2 --> NUM2["number (3)"]
+    T1 --> NUM3["number (2)"]
+```
+
+##### Orden de Evaluación de las Acciones Semánticas
+A diferencia de las convenciones matemáticas estándar, la evaluación de la potencia ocurre de izquierda a derecha:
+
+1. ``T.value = convert(2)``
+2. ``E.value = T.value`` (El valor propagado a E es 2)
+3. ``T.value = convert(3)``
+4. ``E.value = operate('**', 2, 3)`` (El valor propagado a E es 8)
+5. ``T.value = convert(2)``
+6. ``E.value = operate('**', 8, 2)`` (El valor propagado a E es 64)
+7. ``L.value = E.value`` (El resultado final es 64)
+
+#### Expresión: 7 - 4 / 2
+##### Derivación (por la izquierda)
+1. L ⇒ E eof
+2. ⇒ E op T eof
+3. ⇒ E op T op T eof
+4. ⇒ T op T op T eof
+5. ⇒ number(7) op T op T eof
+6. ⇒ number(7) - T op T eof
+7. ⇒ number(7) - number(4) op T eof
+8. ⇒ number(7) - number(4) / T eof
+9. ⇒ number(7) - number(4) / number(2) eof
+
+##### Árbol de Análisis Sintáctico (Parse Tree)
+```mermaid
+graph TD
+    L["L"] --> E1["E"]
+    L --> EOF["eof"]
+    E1 --> E2["E"]
+    E1 --> OP1["op (/)"]
+    E1 --> T1["T"]
+    E2 --> E3["E"]
+    E2 --> OP2["op (-)"]
+    E2 --> T2["T"]
+    E3 --> T3["T"]
+    T3 --> NUM1["number (7)"]
+    T2 --> NUM2["number (4)"]
+    T1 --> NUM3["number (2)"]
+```
+
+##### Orden de Evaluación de las Acciones Semánticas
+Nuevamente, la resta se ejecuta antes que la división debido al orden en que aparecen:
+
+1. ``T.value = convert(7)``
+2. ``E.value = T.value`` (El valor propagado a E es 7)
+3. ``T.value = convert(4)``
+4. ``E.value = operate('-', 7, 4)`` (El valor propagado a E es 3)
+5. ``T.value = convert(2)``
+6. ``E.value = operate('/', 3, 2)`` (El valor propagado a E es 1.5)
+7. ``L.value = E.value`` (El resultado final es 1.5)
+
 
 ## Referencias
 
