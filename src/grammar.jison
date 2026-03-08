@@ -3,39 +3,46 @@
 integer \d+
 float {integer}[.]{integer}?
 exponent [Ee][+-]?{integer}
+add [+-]
+mul [*/]
+pow "**"
+line .*\n?
 %%
 \s+                                 { /* skip whitespace */;        }
-[/][*](.*\n?)*[*][/]                { /* skip multiline comments*/; } 
+[/][*]{line}*[*][/]                 { /* skip multiline comments*/; } 
 [/][/].*                            { /* skip oneline comments*/;   } 
+[(]                                 { return 'LPAR';                }
+[)]                                 { return 'RPAR';                }  
 {float}{exponent}?                  { return 'NUMBER';              }
 {integer}                           { return 'NUMBER';              }
-"**"                                { return 'OP';                  }
-[-+*/]                              { return 'OP';                  }
+{pow}                               { return 'POW';                 }
+{mul}                               { return 'MUL';                 }
+{add}                               { return 'ADD';                 }
 <<EOF>>                             { return 'EOF';                 }
 .                                   { return 'INVALID';             }
 /lex
 
 /* Parser */
-%start expressions
+%start L
+%token LPAR
+%token RPAR
 %token NUMBER
 %%
 
-expressions
-    : expression EOF
-        { return $expression; }
-    ;
+L: E EOF { return $E; };
 
-expression
-    : expression OP term
-        { $$ = operate($OP, $expression, $term); }
-    | term
-        { $$ = $term; }
-    ;
+E: E ADD T { $$ = operate($ADD, $E, $T); }
+   | T { $$ = $T; };
 
-term
-    : NUMBER
-        { $$ = Number(yytext); }
-    ;
+T: T MUL R { $$ = operate($MUL, $T, $R); }  
+  | R { $$ = $R };
+
+R: F POW R { $$ = operate($POW, $F, $R); }
+  | F { $$ = $F; };
+
+F: LPAR E RPAR { $$ = $E; }
+  | NUMBER { $$ = Number(yytext); };
+
 %%
 
 function operate(op, left, right) {
