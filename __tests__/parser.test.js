@@ -110,7 +110,6 @@ describe('Parser Tests', () => {
       expect(() => parse("3 +")).toThrow();
       expect(() => parse("+ 3")).toThrow();
       expect(() => parse("3 + + 4")).toThrow();
-      // expect(() => parse("3.5")).toThrow(); // Only integers are supported --> Not anymore
     });
 
     test('should handle incomplete expressions', () => {
